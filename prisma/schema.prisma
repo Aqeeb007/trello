@@ -17,6 +17,38 @@ model Board {
   imageUsername String @db.String
   imageLinkHTML String @db.String
 
+  lists List[]
+
   createAt  DateTime @default(now())
   updatedAt DateTime @updatedAt
+  Card      Card[]
+}
+
+model List {
+  id    String @id @default(auto()) @map("_id") @db.ObjectId
+  title String
+  order Int
+
+  cards Card[]
+
+  boardId String @db.ObjectId
+  board   Board  @relation(fields: [boardId], references: [id], onDelete: Cascade)
+
+  createAt  DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Card {
+  id          String  @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  order       Int
+  description String?
+
+  listId String @db.ObjectId
+  list   List   @relation(fields: [listId], references: [id], onDelete: Cascade)
+
+  createAt  DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  Board     Board?   @relation(fields: [boardId], references: [id])
+  boardId   String?  @db.ObjectId
 }
