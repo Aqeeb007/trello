@@ -4,7 +4,7 @@ import { safeAction } from "@/lib/create-safe-action"
 import { db } from "@/lib/db"
 import { auth } from "@clerk/nextjs/server"
 import { revalidatePath } from "next/cache"
-import { CreateCard } from "./schema"
+import { CopyCard } from "./schema"
 import { InputType, ReturnType } from "./types"
 
 
@@ -17,52 +17,52 @@ const handler = async (data: InputType): Promise<ReturnType> => {
         }
     }
 
-    const { title, boardId, listId } = data
+    const { id, boardId } = data
 
     let card
-
     try {
-
-        const list = await db.list.findUnique({
+        const cardToCopy = await db.card.findUnique({
             where: {
-                id: listId,
-                board: {
-                    orgId
+                id,
+                boardId,
+                list: {
+                    board: {
+                        orgId
+                    }
                 }
             },
-
         })
 
-        if (!list) {
+        if (!cardToCopy) {
             return {
-                error: "List not found"
+                error: "Card not found"
             }
         }
 
-
-        const lastCard = await db.
-            card.findFirst({
-                where: {
-                    listId
-                },
-                orderBy: {
-                    order: "desc"
-                },
-                select: { order: true }
-            })
+        const lastCard = await db.card.findFirst({
+            where: {
+                boardId
+            },
+            orderBy: {
+                order: "desc"
+            },
+            select: { order: true }
+        })
 
         const newOrder = lastCard ? lastCard.order + 1 : 1
 
-
         card = await db.card.create({
             data: {
-                title,
-                listId,
-                boardId,
+                title: `${cardToCopy.title}-Copy`,
+                description: cardToCopy.description,
                 order: newOrder,
-            }
+                listId: cardToCopy.listId,
+                boardId,
+            },
         })
+
     } catch (error) {
+        console.log("handler ~ error:", error)
         return {
             error: "Database Error"
         }
@@ -73,4 +73,4 @@ const handler = async (data: InputType): Promise<ReturnType> => {
     return { data: card }
 }
 
-export const createCard = safeAction(CreateCard, handler)
+export const copyCard = safeAction(CopyCard, handler)
