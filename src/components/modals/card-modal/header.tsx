@@ -23,6 +23,7 @@ export const Header = ({ data }: HeaderProps) => {
   const { execute, fieldErrors } = useAction(updateCard, {
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["card", data.id] });
+      queryClient.invalidateQueries({ queryKey: ["card-logs", data.id] });
     },
     onError: (error) => {
       toast.error(error);
