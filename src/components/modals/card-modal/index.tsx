@@ -8,23 +8,26 @@ import { useQuery } from "@tanstack/react-query";
 import { Description } from "./description";
 import { Header } from "./header";
 import { Actions } from "./actions";
+import { Activity } from "./activity";
+import { AuditLog } from "@prisma/client";
 
 export const CardModal = () => {
   const { isOpen, onClose, id } = useCardModal();
 
-  const {
-    data: cardData,
-    isLoading,
-    isPending,
-  } = useQuery<CartWithList>({
+  const { data: cardData } = useQuery<CartWithList>({
     queryKey: ["card", id],
     queryFn: () => fetcher(`/api/card/${id}`),
+  });
+
+  const { data: auditLogsData } = useQuery<AuditLog[]>({
+    queryKey: ["card-logs", id],
+    queryFn: () => fetcher(`/api/card/${id}/logs`),
   });
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogTrigger>Open</DialogTrigger>
-      <DialogContent className="min-w-[600px]">
+      <DialogContent className="">
         {!cardData ? (
           <Header.Skeleton />
         ) : (
@@ -37,6 +40,13 @@ export const CardModal = () => {
                 <Description.Skeleton />
               ) : (
                 <Description data={cardData as CartWithList} />
+              )}
+            </div>
+            <div className="w-full space-y-6">
+              {!auditLogsData ? (
+                <Activity.Skeleton />
+              ) : (
+                <Activity items={auditLogsData as AuditLog[]} />
               )}
             </div>
           </div>

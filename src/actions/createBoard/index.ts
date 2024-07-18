@@ -6,6 +6,8 @@ import { auth } from "@clerk/nextjs/server"
 import { revalidatePath } from "next/cache"
 import { CreateBoard } from "./schema"
 import { InputType, ReturnType } from "./types"
+import { createAuditLog } from "@/lib/create-audit-log"
+import { ACTION, ENTITY_TYPE } from "@prisma/client"
 
 
 const handler = async (data: InputType): Promise<ReturnType> => {
@@ -39,6 +41,14 @@ const handler = async (data: InputType): Promise<ReturnType> => {
                 imageUsername,
             }
         })
+
+        await createAuditLog({
+            action: ACTION.CREATE,
+            entityType: ENTITY_TYPE.BOARD,
+            entityTitle: board.title,
+            entityId: board.id
+        })
+
     } catch (error) {
         return {
             error: "Database Error"

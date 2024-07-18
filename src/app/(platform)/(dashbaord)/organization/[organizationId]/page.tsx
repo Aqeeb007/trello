@@ -1,8 +1,7 @@
 import { Separator } from "@/components/ui/separator";
-import { CreateBoardForm } from "./_components/CreateBoardForm";
-import { Info } from "./_components/Info";
-import { BoardList } from "./_components/BoardList";
 import { Suspense } from "react";
+import { BoardList } from "./_components/BoardList";
+import { Info } from "./_components/Info";
 
 const OrganizationIdPage = () => {
   return (
